@@ -1,0 +1,10 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment file
+.env
+
+# Certificates & keys
+certs/
+*.pem

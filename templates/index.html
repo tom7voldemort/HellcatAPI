@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Title}}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+                                                                                                                            rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    
+    <nav>
+        <div class="nav-left">
+            <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
+                <i class="fa-solid fa-bars" id="hamburger-icon"></i>
+            </button>
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
+                HellcatAPI
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="status-pill">
+                <span class="dot"></span>
+                <span class="hide-xs">Operational</span>
+            </div>
+            <span class="version-badge">v{{Version}}</span>
+        </div>
+    </nav>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+            
+            <div class="sb-section">Overview</div>
+            <div class="sb-item active" data-page="dashboard">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </div>
+            <div class="sb-item" data-page="analytics">
+                <i class="fa-solid fa-chart-bar"></i> Analytics
+                <span class="sb-badge green">Live</span>
+            </div>
+            
+            <div class="sb-section">Data</div>
+            <div class="sb-item" data-page="users">
+                <i class="fa-solid fa-users"></i> Users
+                <span class="sb-badge">3</span>
+            </div>
+            <div class="sb-item" data-page="products">
+                <i class="fa-solid fa-box"></i> Products
+                <span class="sb-badge">3</span>
+            </div>
+            <div class="sb-item" data-page="orders">
+                <i class="fa-solid fa-receipt"></i> Orders
+                <span class="sb-badge">0</span>
+            </div>
+            
+            <div class="sb-section">API</div>
+            <div class="sb-item" data-page="endpoints">
+                <i class="fa-solid fa-plug"></i> Endpoints
+                <span class="sb-badge">20</span>
+            </div>
+            <div class="sb-item" data-page="auth">
+                <i class="fa-solid fa-lock"></i> Auth / JWT
+            </div>
+            <div class="sb-item" data-page="stream">
+                <i class="fa-solid fa-satellite-dish"></i> Stream / SSE
+                <span class="sb-badge green">Live</span>
+            </div>
+            <div class="sb-item" data-page="logs">
+                <i class="fa-solid fa-scroll"></i> Request Logs
+                <span class="sb-badge amber">live</span>
+            </div>
+            
+            <div class="sb-section">System</div>
+            <div class="sb-item" data-page="server">
+                <i class="fa-solid fa-server"></i> Server
+            </div>
+            <div class="sb-item" data-page="settings">
+                <i class="fa-solid fa-gear"></i> Settings
+            </div>
+            
+        </div>
+    </aside>
+    
+    <div class="main" id="main">
+        
+        <div id="page-dashboard" class="page active">
+            <div class="page-header">
+                <div class="page-title">Dashboard</div>
+                <div class="page-sub">Overview of your HellcatAPI instance — <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal)">{{Server}}</span>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                    <div>
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value">{{Message}}</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon white"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="stat-label">Users</div>
+                        <div class="stat-value" id="stat-users">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="stat-label">Mode</div>
+                        <div class="stat-value">Async</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber"><i class="fa-solid fa-box"></i></div>
+                    <div>
+                        <div class="stat-label">Products</div>
+                        <div class="stat-value" id="stat-products">—</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-plug"></i> Quick Test</div>
+                    <div class="panel-meta">core routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/ping</span>
+                            <span class="ep-desc">Sync health check · returns Pong + timestamp</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/ping')"><i class="fa-solid fa-play"></i> Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/async-ping</span>
+                            <span class="ep-desc">Async health check</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/async-ping')"><i class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/async-data</span>
+                            <span class="ep-desc">Gather user + stats + system info async</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/async-data')"><i class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/status</span>
+                            <span class="ep-desc">Service health: DB · Cache · System</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/status')"><i class="fa-solid fa-play"></i> Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/async-echo</span>
+                            <span class="ep-desc">Echo JSON body · requires Content-Type: application/json</span>
+                        </div>
+                        <button class="btn" onclick="postApi()"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/api/v1/summary</span>
+                            <span class="ep-desc">Router prefix summary · Users/Orders/Products count</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/api/v1/summary')"><i class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                </div>
+                <div class="output-wrap">
+                    <div class="output-top">
+                        <div class="output-label"><i class="fa-solid fa-terminal"></i> Response</div>
+                        <button class="btn btn-sm" onclick="clearOutput()"><i class="fa-solid fa-xmark"></i>
+                            Clear</button>
+                    </div>
+                    <pre id="output">Waiting for request...</pre>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-analytics" class="page">
+            <div class="page-header">
+                <div class="page-title">Analytics</div>
+                <div class="page-sub">Request volume and top endpoint breakdown.</div>
+            </div>
+            <div class="analytics-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Requests — Last 7 Days</div>
+                    <div class="bar-chart">
+                        <div class="bar" style="height:30%" title="Mon"></div>
+                        <div class="bar" style="height:55%" title="Tue"></div>
+                        <div class="bar" style="height:42%" title="Wed"></div>
+                        <div class="bar" style="height:78%" title="Thu"></div>
+                        <div class="bar" style="height:60%" title="Fri"></div>
+                        <div class="bar" style="height:88%" title="Sat"></div>
+                        <div class="bar" style="height:65%" title="Sun"></div>
+                    </div>
+                    <div class="bar-labels">
+                        <div class="bar-label">Mon</div>
+                        <div class="bar-label">Tue</div>
+                        <div class="bar-label">Wed</div>
+                        <div class="bar-label">Thu</div>
+                        <div class="bar-label">Fri</div>
+                        <div class="bar-label">Sat</div>
+                        <div class="bar-label">Sun</div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Top Endpoint Usage</div>
+                    <div class="req-list">
+                        <div class="req-row">
+                            <div class="req-name">/ping</div>
+                            <div class="req-bar-wrap">
+                                <div class="req-bar-fill" style="width:92%;background:var(--teal)"></div>
+                            </div>
+                            <div class="req-count">348</div>
+                        </div>
+                        <div class="req-row">
+                            <div class="req-name">/users</div>
+                            <div class="req-bar-wrap">
+                                <div class="req-bar-fill" style="width:68%;background:#f0f0f0"></div>
+                            </div>
+                            <div class="req-count">258</div>
+                        </div>
+                        <div class="req-row">
+                            <div class="req-name">/async-data</div>
+                            <div class="req-bar-wrap">
+                                <div class="req-bar-fill" style="width:50%;background:#34d399"></div>
+                            </div>
+                            <div class="req-count">191</div>
+                        </div>
+                        <div class="req-row">
+                            <div class="req-name">/products</div>
+                            <div class="req-bar-wrap">
+                                <div class="req-bar-fill" style="width:38%;background:#f59e0b"></div>
+                            </div>
+                            <div class="req-count">143</div>
+                        </div>
+                        <div class="req-row">
+                            <div class="req-name">/auth/login</div>
+                            <div class="req-bar-wrap">
+                                <div class="req-bar-fill" style="width:22%;background:#ef4444"></div>
+                            </div>
+                            <div class="req-count">84</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Middleware Active</div>
+                    <div class="panel-meta">5 layers</div>
+                </div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:8px;">
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">CORS</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">AllowedOrigins:
+                            ["*"]</span></div>
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">SecurityHeaders</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">Enabled</span>
+                    </div>
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">RateLimit</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">200
+                            req / 60s per IP</span></div>
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">BodySizeLimit</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">5
+                            MB max</span></div>
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">Gzip</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">MinSize:
+                            512 bytes</span></div>
+                    <div class="log-item"><span
+                                                                                                                                                style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-light);width:160px;flex-shrink:0">LogRequest</span><span
+                                                                                                                                                style="font-size:12px;color:var(--text-2)">Custom
+                            middleware · max 100 entries</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-users" class="page">
+            <div class="page-header">
+                <div class="page-title">Users</div>
+                <div class="page-sub">Manage users via <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">/users</span>
+                    endpoints.</div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-users"></i> Seed Data</div>
+                    <div class="panel-meta" id="users-count">loading...</div>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="4"
+                                                                                                                                                        style="text-align:center;color:var(--text-3);font-size:12px;padding:14px">
+                                    Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-plug"></i> User Endpoints</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/users</span>
+                            <span class="ep-desc">List all users · query: ?role=admin|user</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/users');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/users/&lt;UserId&gt;</span>
+                            <span class="ep-desc">Get single user by ID</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/users/1');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Try #1</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/users</span>
+                            <span class="ep-desc">Create user · requires Name + Email (JSON)</span>
+                        </div>
+                        <button class="btn" onclick="createUser()"><i class="fa-solid fa-plus"></i> Create</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/users/&lt;UserId&gt;</span>
+                            <span class="ep-desc">Update user Name / Email / Role</span>
+                        </div>
+                        <button class="btn btn-sm" onclick="goTo('dashboard')"><i class="fa-solid fa-arrow-right"></i>
+                            Via Dashboard</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method del">DELETE</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/users/&lt;UserId&gt;</span>
+                            <span class="ep-desc">Delete user by ID</span>
+                        </div>
+                        <button class="btn btn-red" onclick="deleteUser(3);goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-trash"></i>
+                            Delete #3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-products" class="page">
+            <div class="page-header">
+                <div class="page-title">Products</div>
+                <div class="page-sub">Browse products via <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">/products</span>.
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-box"></i> Seed Data</div>
+                    <div class="panel-meta" id="products-count">loading...</div>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-tbody">
+                            <tr>
+                                <td colspan="4"
+                                                                                                                                                        style="text-align:center;color:var(--text-3);font-size:12px;padding:14px">
+                                    Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-plug"></i> Product Endpoints</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/products</span>
+                            <span class="ep-desc">List products · query: ?min_price=&amp;max_price=</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/products');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/products/&lt;ProductId&gt;</span>
+                            <span class="ep-desc">Get single product by ID</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/products/1');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Try #1</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-orders" class="page">
+            <div class="page-header">
+                <div class="page-title">Orders</div>
+                <div class="page-sub">Create and view orders via <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">/orders</span>.
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-receipt"></i> Create Order</div>
+                </div>
+                <div class="login-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">UserId</label>
+                            <input class="form-input" id="order-uid" type="number" value="1" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ProductId</label>
+                            <input class="form-input" id="order-pid" type="number" value="1" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quantity</label>
+                            <input class="form-input" id="order-qty" type="number" value="1" min="1">
+                        </div>
+                    </div>
+                    <button class="btn" style="align-self:flex-start" onclick="createOrder()"><i
+                                                                                                                                                class="fa-solid fa-plus"></i>
+                        Place Order</button>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-plug"></i> Order Endpoints</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/orders</span>
+                            <span class="ep-desc">List all orders · query: ?UserId=</span>
+                        </div>
+                        <button class="btn" onclick="callApi('/orders');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <div class="ep-info">
+                            <span class="ep-path">/orders</span>
+                            <span class="ep-desc">Place order · requires UserId + ProductId (JSON). Validates
+                                stock.</span>
+                        </div>
+                        <button class="btn btn-sm" onclick="goTo('orders')"><i class="fa-solid fa-arrow-up"></i> Use
+                            form above</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-endpoints" class="page">
+            <div class="page-header">
+                <div class="page-title">Endpoints</div>
+                <div class="page-sub">All 20 registered API routes.</div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-plug"></i> Core Routes</div>
+                    <div class="panel-meta">7 routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/</span><span class="ep-desc">Renders index.html
+                                template</span></div><span></span>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/ping</span><span class="ep-desc">Sync health
+                                check</span></div><button class="btn" onclick="callApi('/ping');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/async-ping</span><span class="ep-desc">Async health
+                                check</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/async-ping');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/async-data</span><span class="ep-desc">Parallel
+                                async: user + stats + system</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/async-data');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method post">POST</span>
+                        <div class="ep-info"><span class="ep-path">/async-echo</span><span class="ep-desc">Echoes JSON
+                                body with request metadata</span></div><button class="btn"
+                                                                                                                                                onclick="postApi();goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-paper-plane"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/status</span><span class="ep-desc">Service health:
+                                DB · Cache · System</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/status');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/routes</span><span class="ep-desc">List all
+                                registered routes</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/routes');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/logs</span><span class="ep-desc">Request log ·
+                                query: ?limit=20</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/logs');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/info</span><span class="ep-desc">App info: paths ·
+                                routes count · sessions · stats</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/info');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method multi">MULTI</span>
+                        <div class="ep-info"><span class="ep-path">/multi</span><span class="ep-desc">GET / POST / PUT —
+                                returns method + query + body info</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/multi');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            GET</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/context-demo</span><span
+                                                                                                                                                    class="ep-desc">RequestContext
+                                demo: set + read + clear</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/context-demo');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/timeout-demo</span><span class="ep-desc">Async
+                                timeout · query: ?wait=1.0&amp;limit=2.0</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/timeout-demo');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/stream</span><span class="ep-desc">SSE stream ·
+                                query: ?count=5 (max 20)</span></div><button class="btn btn-sm"
+                                                                                                                                                onclick="goTo('stream')"><i
+                                                                                                                                                    class="fa-solid fa-satellite-dish"></i>
+                            SSE page</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-users"></i> Users Routes</div>
+                    <div class="panel-meta">5 routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/users</span><span
+                                                                                                                                                    class="ep-desc">?role=admin|user</span>
+                        </div><button class="btn" onclick="callApi('/users');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/users/&lt;UserId&gt;</span><span class="ep-desc">Get
+                                by ID</span></div><button class="btn" onclick="callApi('/users/1');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            #1</button>
+                    </div>
+                    <div class="endpoint"><span class="method post">POST</span>
+                        <div class="ep-info"><span class="ep-path">/users</span><span class="ep-desc">Create · Name +
+                                Email required</span></div><button class="btn btn-sm" onclick="goTo('users')"><i
+                                                                                                                                                    class="fa-solid fa-arrow-right"></i>
+                            Users page</button>
+                    </div>
+                    <div class="endpoint"><span class="method put">PUT</span>
+                        <div class="ep-info"><span class="ep-path">/users/&lt;UserId&gt;</span><span
+                                                                                                                                                    class="ep-desc">Update
+                                Name / Email / Role</span></div><span></span>
+                    </div>
+                    <div class="endpoint"><span class="method del">DELETE</span>
+                        <div class="ep-info"><span class="ep-path">/users/&lt;UserId&gt;</span><span
+                                                                                                                                                    class="ep-desc">Delete
+                                by ID</span></div><span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-box"></i> Products &amp; Orders Routes</div>
+                    <div class="panel-meta">4 routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/products</span><span class="ep-desc">?min_price=
+                                &amp; ?max_price=</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/products');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/products/&lt;ProductId&gt;</span><span
+                                                                                                                                                    class="ep-desc">Get
+                                product by ID</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/products/2');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            #2</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/orders</span><span class="ep-desc">?UserId=
+                                filter</span></div><button class="btn" onclick="callApi('/orders');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method post">POST</span>
+                        <div class="ep-info"><span class="ep-path">/orders</span><span class="ep-desc">Create order ·
+                                UserId + ProductId + Quantity</span></div><button class="btn btn-sm"
+                                                                                                                                                onclick="goTo('orders')"><i
+                                                                                                                                                    class="fa-solid fa-arrow-right"></i>
+                            Orders page</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-lock"></i> Auth Routes</div>
+                    <div class="panel-meta">3 routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint"><span class="method post">POST</span>
+                        <div class="ep-info"><span class="ep-path">/auth/login</span><span class="ep-desc">Login with
+                                Email · returns JWT + session</span></div><button class="btn btn-sm"
+                                                                                                                                                onclick="goTo('auth')"><i
+                                                                                                                                                    class="fa-solid fa-arrow-right"></i>
+                            Auth page</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/auth/me</span><span class="ep-desc">Get current user
+                                · Bearer token required</span></div><button class="btn btn-sm" onclick="goTo('auth')"><i
+                                                                                                                                                    class="fa-solid fa-arrow-right"></i>
+                            Auth page</button>
+                    </div>
+                    <div class="endpoint"><span class="method post">POST</span>
+                        <div class="ep-info"><span class="ep-path">/auth/logout</span><span class="ep-desc">Invalidate
+                                session</span></div><span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-code-branch"></i> API Router — /api/v1</div>
+                    <div class="panel-meta">2 routes</div>
+                </div>
+                <div class="endpoint-list">
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/api/v1/health</span><span class="ep-desc">Router
+                                health check · version v1</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/api/v1/health');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                    <div class="endpoint"><span class="method get">GET</span>
+                        <div class="ep-info"><span class="ep-path">/api/v1/summary</span><span class="ep-desc">Async
+                                count: Users + Orders + Products + Logs</span></div><button class="btn"
+                                                                                                                                                onclick="callApi('/api/v1/summary');goTo('dashboard')"><i
+                                                                                                                                                    class="fa-solid fa-play"></i>
+                            Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-auth" class="page">
+            <div class="page-header">
+                <div class="page-title">Auth / JWT</div>
+                <div class="page-sub">Login with a registered email to receive a JWT Bearer token.</div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-right-to-bracket"></i> Login</div>
+                </div>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input class="form-input" id="login-email" type="email" value="tom7@hellcat.dev"
+                                                                                                                                                placeholder="tom7@hellcat.dev">
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button class="btn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i>
+                            Login</button>
+                        <button class="btn btn-sm" onclick="doMe()"><i class="fa-solid fa-user"></i> GET
+                            /auth/me</button>
+                        <button class="btn btn-red" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i>
+                            Logout</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel" id="token-panel" style="display:none">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-key"></i> JWT Token</div>
+                    <div class="panel-meta">expires 1h</div>
+                </div>
+                <div style="padding:14px">
+                    <div class="token-box" id="token-display">—</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-terminal"></i> Response</div>
+                    <button class="btn btn-sm" onclick="clearAuthOutput()"><i class="fa-solid fa-xmark"></i>
+                        Clear</button>
+                </div>
+                <div style="padding:14px">
+                    <pre id="auth-output"
+                                                                                                                                            style="background:#080808;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;padding:16px;border-radius:var(--radius-sm);overflow:auto;max-height:260px;border:1px solid var(--border)">Login to see response...</pre>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-circle-info"></i> Available Test Accounts</div>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <div class="info-key"><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                                                                                                                                    data-cfemail="0c7863613b4c646960606f6d782268697a">[email&#160;protected]</a>
+                        </div>
+                        <div class="info-val"><span class="role-badge role-admin">admin</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-key"><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                                                                                                                                    data-cfemail="7514191c1610351d1019191614015b111003">[email&#160;protected]</a>
+                        </div>
+                        <div class="info-val"><span class="role-badge role-user">user</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-key"><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                                                                                                                                    data-cfemail="a4c6cbc6e4ccc1c8c8c7c5d08ac0c1d2">[email&#160;protected]</a>
+                        </div>
+                        <div class="info-val"><span class="role-badge role-user">user</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-stream" class="page">
+            <div class="page-header">
+                <div class="page-title">Stream / SSE</div>
+                <div class="page-sub">Server-Sent Events via <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">/stream?count=N</span>
+                    — max 20 events.</div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-satellite-dish"></i> Event Stream</div>
+                </div>
+                <div class="stream-wrap">
+                    <div class="stream-controls">
+                        <label class="form-label" style="margin:0">Count:</label>
+                        <input class="form-input" id="stream-count" type="number" value="5" min="1" max="20"
+                                                                                                                                                style="width:80px">
+                        <button class="btn" onclick="startStream()"><i class="fa-solid fa-play"></i> Start</button>
+                        <button class="btn btn-sm" onclick="clearStream()"><i class="fa-solid fa-xmark"></i>
+                            Clear</button>
+                    </div>
+                    <div class="stream-output" id="stream-output">Press Start to begin receiving events...</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-circle-info"></i> /timeout-demo</div>
+                </div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                        <div class="form-group" style="flex-direction:row;align-items:center;gap:8px">
+                            <label class="form-label" style="margin:0;white-space:nowrap">wait (s)</label>
+                            <input class="form-input" id="td-wait" type="number" value="1" step="0.5"
+                                                                                                                                                    style="width:80px">
+                        </div>
+                        <div class="form-group" style="flex-direction:row;align-items:center;gap:8px">
+                            <label class="form-label" style="margin:0;white-space:nowrap">limit (s)</label>
+                            <input class="form-input" id="td-limit" type="number" value="2" step="0.5"
+                                                                                                                                                    style="width:80px">
+                        </div>
+                        <button class="btn" onclick="testTimeout()"><i class="fa-solid fa-play"></i> Test</button>
+                    </div>
+                    <pre id="timeout-output"
+                                                                                                                                            style="background:#080808;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border);min-height:50px">—</pre>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-logs" class="page">
+            <div class="page-header">
+                <div class="page-title">Request Logs</div>
+                <div class="page-sub">Recent incoming API requests — stored in memory (max 100).</div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-scroll"></i> Recent Requests</div>
+                    <button class="btn btn-sm" onclick="refreshLogs()"><i class="fa-solid fa-rotate"></i>
+                        Refresh</button>
+                </div>
+                <div class="log-list" id="log-list">
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(20,184,166,0.12);color:var(--teal-light);border-radius:4px;padding:2px 6px;">GET</span>
+                        <span class="log-path">/ping</span>
+                        <span class="log-code code-200">200</span>
+                        <span class="log-time">2ms · just now</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(245,158,11,0.12);color:#fcd34d;border-radius:4px;padding:2px 6px;">POST</span>
+                        <span class="log-path">/async-echo</span>
+                        <span class="log-code code-200">200</span>
+                        <span class="log-time">5ms · 1m ago</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(20,184,166,0.12);color:var(--teal-light);border-radius:4px;padding:2px 6px;">GET</span>
+                        <span class="log-path">/users</span>
+                        <span class="log-code code-200">200</span>
+                        <span class="log-time">8ms · 2m ago</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(245,158,11,0.12);color:#fcd34d;border-radius:4px;padding:2px 6px;">POST</span>
+                        <span class="log-path">/auth/login</span>
+                        <span class="log-code code-200">200</span>
+                        <span class="log-time">11ms · 4m ago</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(20,184,166,0.12);color:var(--teal-light);border-radius:4px;padding:2px 6px;">GET</span>
+                        <span class="log-path">/async-data</span>
+                        <span class="log-code code-200">200</span>
+                        <span class="log-time">14ms · 5m ago</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-method"
+                                                                                                                                                style="background:rgba(20,184,166,0.12);color:var(--teal-light);border-radius:4px;padding:2px 6px;">GET</span>
+                        <span class="log-path">/unknown-route</span>
+                        <span class="log-code code-404">404</span>
+                        <span class="log-time">1ms · 7m ago</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-circle-info"></i> Live Logs from API</div>
+                </div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                        <input class="form-input" id="log-limit" type="number" value="10" min="1" max="100"
+                                                                                                                                                style="width:80px">
+                        <button class="btn" onclick="fetchLogs()"><i class="fa-solid fa-satellite-dish"></i> Fetch
+                            /logs</button>
+                    </div>
+                    <pre id="logs-output"
+                                                                                                                                            style="background:#080808;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;padding:16px;border-radius:var(--radius-sm);overflow:auto;max-height:260px;border:1px solid var(--border)">—</pre>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-server" class="page">
+            <div class="page-header">
+                <div class="page-title">Server</div>
+                <div class="page-sub">System configuration from <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">TestApi.py</span>.
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-server"></i> System Info</div>
+                </div>
+                <div class="server-grid">
+                    <div class="server-card">
+                        <div class="server-card-label">Host</div>
+                        <div class="server-card-val">{{Server}}</div>
+                        <div class="server-card-sub">tomcat7war.duckdns.org</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Port</div>
+                        <div class="server-card-val">9443</div>
+                        <div class="server-card-sub">HTTPS · redirect :9926</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">TLS</div>
+                        <div class="server-card-val">Enabled</div>
+                        <div class="server-card-sub">certs/cert.pem</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Runtime</div>
+                        <div class="server-card-val">Python</div>
+                        <div class="server-card-sub">3.11 · Async mode</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Version</div>
+                        <div class="server-card-val">{{Version}}</div>
+                        <div class="server-card-sub">HellcatAPI</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Debug</div>
+                        <div class="server-card-val">True</div>
+                        <div class="server-card-sub">Verbose traces on</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Rate Limit</div>
+                        <div class="server-card-val">200 / 60s</div>
+                        <div class="server-card-sub">Per IP</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Body Limit</div>
+                        <div class="server-card-val">5 MB</div>
+                        <div class="server-card-sub">Max upload size</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Gzip</div>
+                        <div class="server-card-val">≥ 512 B</div>
+                        <div class="server-card-sub">Compression threshold</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-database"></i> Live Database Stats</div>
+                    <button class="btn btn-sm" onclick="loadDbStats()"><i class="fa-solid fa-rotate"></i>
+                        Refresh</button>
+                </div>
+                <div class="server-grid">
+                    <div class="server-card">
+                        <div class="server-card-label">Users</div>
+                        <div class="server-card-val" id="db-users">—</div>
+                        <div class="server-card-sub">Total records</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Products</div>
+                        <div class="server-card-val" id="db-products">—</div>
+                        <div class="server-card-sub">Total records</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Orders</div>
+                        <div class="server-card-val" id="db-orders">—</div>
+                        <div class="server-card-sub">Total records</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Pool Size</div>
+                        <div class="server-card-val" id="db-pool">—</div>
+                        <div class="server-card-sub">Connections idle</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">In Use</div>
+                        <div class="server-card-val" id="db-inuse">—</div>
+                        <div class="server-card-sub">Active connections</div>
+                    </div>
+                    <div class="server-card">
+                        <div class="server-card-label">Driver</div>
+                        <div class="server-card-val" id="db-driver">—</div>
+                        <div class="server-card-sub">Database engine</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="page-settings" class="page">
+            <div class="page-header">
+                <div class="page-title">Settings</div>
+                <div class="page-sub">Configuration applied in <span
+                                                                                                                                            style="font-family:'JetBrains Mono',monospace">TestApi.py</span>.
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-gear"></i> Middleware Toggles</div>
+                </div>
+                <div class="settings-grid">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Request Logging</div>
+                            <div class="setting-desc">LogRequest middleware · max 100 entries in memory</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Async Mode</div>
+                            <div class="setting-desc">Asynchronous=True in App.Run()</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Rate Limiting</div>
+                            <div class="setting-desc">MaxRequests=200 / WindowSeconds=60</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">CORS</div>
+                            <div class="setting-desc">AllowedOrigins=["*"]</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Security Headers</div>
+                            <div class="setting-desc">UseSecurityHeaders() enabled</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Gzip Compression</div>
+                            <div class="setting-desc">MinSizeBytes=512</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">Debug Mode</div>
+                            <div class="setting-desc">Debug=True · show detailed error traces</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-label">RequireJson Middleware</div>
+                            <div class="setting-desc">Applied on POST /users, POST /orders, POST /auth/login, PUT
+                                /users/&lt;id&gt;</div>
+                        </div>
+                        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-triangle-exclamation"></i> Error Handlers</div>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <div class="info-key">404 Not Found</div>
+                        <div class="info-val" style="font-family:'JetBrains Mono',monospace;font-size:11px">
+                            {"Error":true,"Message":"Route not found","Path":"..."}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-key">405 Method Not Allowed</div>
+                        <div class="info-val" style="font-family:'JetBrains Mono',monospace;font-size:11px">
+                            {"Error":true,"Message":"Method not allowed","Method":"..."}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <div class="footer-left"><i class="fa-solid fa-bolt"></i> HellcatAPI &bull; {{Server}}</div>
+            <div class="footer-right">Python · Async · REST · v{{Version}}</div>
+        </footer>
+        
+    </div>
+    <script src="/static/js/script.js" defer></script>
+</body>
+
+</html>
