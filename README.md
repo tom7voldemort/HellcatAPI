@@ -1,59 +1,50 @@
+<div align="center">
+
+```
+ _   _      _ _           _      _    ____ ___ 
+| | | | ___| | | ___ __ _| |_   / \  |  _ \_ _|
+| |_| |/ _ \ | |/ __/ _` | __| / _ \ | |_) | | 
+|  _  |  __/ | | (_| (_| | |_ / ___ \|  __/| | 
+|_| |_|\___|_|_|\___\__,_|\__/_/   \_\_|  |___|
+```
+
 # HellcatAPI
 
-A lightweight, zero-dependency HTTP API framework for Python, built from raw sockets up. HellcatAPI is designed to be fast, explicit, and self-contained, with no reliance on WSGI, ASGI, or any third-party web library.
+**A lightweight, async-first Python web framework built entirely on standard library modules.**
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Termux%20%7C%20Android-orange?style=flat-square)]()
+[![Status](https://img.shields.io/badge/Status-Active%20Development-yellow?style=flat-square)]()
+[![Stars](https://img.shields.io/github/stars/0xTM7/HellcatAPI?style=flat-square)](https://github.com/0xTM7/HellcatAPI/stargazers)
+
+*No pip. No dependencies. Just Python.*
+
+</div>
 
 ---
 
-## Table of Contents
+## What is HellcatAPI?
 
-- [Overview](#overview)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Quick Start](#quick-start)
-- [Routing](#routing)
-- [Request Object](#request-object)
-- [Response Types](#response-types)
-- [Middleware](#middleware)
-- [Template Engine](#template-engine)
-- [Database](#database)
-- [Session Management](#session-management)
-- [JWT Utilities](#jwt-utilities)
-- [Async Support](#async-support)
-- [Static File Serving](#static-file-serving)
-- [HTTPS and SSL](#https-and-ssl)
-- [Sub-Routers](#sub-routers)
-- [Custom Error Handlers](#custom-error-handlers)
-- [Request Context](#request-context)
-- [Server Configuration](#server-configuration)
-- [License](#license)
+HellcatAPI is a custom Python web framework handcrafted from scratch using only Python's built-in standard library — no external packages required. It features a fully async request pipeline, a modular middleware system, a clean router with parameter support, and a template engine — all wired together in a minimal, readable codebase.
+
+Built and maintained on Termux (Android), HellcatAPI is proof that you don't need a bloated ecosystem to ship a capable web framework.
 
 ---
 
-## Overview
+## Features
 
-HellcatAPI speaks HTTP directly over TCP sockets. It handles everything from request parsing and routing to response serialisation, middleware pipelines, template rendering, session management, and database access — with no external dependencies beyond the Python standard library.
-
-It supports synchronous and asynchronous route handlers, a built-in middleware collection, a Jinja2-inspired template engine, HMAC-signed JWT tokens, a connection-pooled database layer (SQLite, PostgreSQL, MySQL, MongoDB), and HTTPS via TLS — all in plain Python.
-
----
-
-## Requirements
-
-- Python 3.8 or later
-- No external packages required
-
----
-
-## Installation
-
-```
-git clone https://github.com/0xTM7/HellcatAPI.git
-cd HellcatAPI
-python TestApi.py
-```
-
-No `pip install` step is required.
+| Feature | Description |
+|---|---|
+| **Zero Dependencies** | Runs entirely on Python's standard library |
+| **Async Core** | Built on `asyncio` with proper event loop management |
+| **Middleware Pipeline** | Stack-based middleware with full request/response control |
+| **Router** | Path-based routing with dynamic parameter extraction |
+| **Template Engine** | Simple HTML template rendering with context injection |
+| **Static File Serving** | Serve CSS, JS, and assets out of the box |
+| **CORS Support** | Built-in CORS middleware |
+| **Context Object** | Clean per-request context passing through the pipeline |
+| **Termux Compatible** | Designed and tested on Android via Termux |
 
 ---
 
@@ -61,650 +52,199 @@ No `pip install` step is required.
 
 ```
 HellcatAPI/
-├── __init__.py              # Public API surface and module entry point
-├── TestApi.py               # Example application
-├── templates/               # Default template directory
-└── cores/
-    ├── HellcatApp.py        # Main application class
-    ├── HellcatServer.py     # TCP socket server, connection handler, logger
-    ├── HellcatRouter.py     # URL router with pattern compilation and middleware chaining
-    ├── HellcatRequest.py    # HTTP request parser (headers, body, form, multipart)
-    ├── HellcatResponse.py   # HTTP response builder and subclass hierarchy
-    ├── HellcatMiddleware.py # Built-in middleware collection
-    ├── HellcatTemplate.py   # Template engine (no external dependencies)
-    ├── HellcatContext.py    # Session store, JWT utility, thread-local request context
-    ├── HellcatAsync.py      # Async handler detection, event loop management, pipeline
-    └── HellcatDB.py         # Database abstraction layer with connection pooling
+├── cores/
+│   ├── HellcatApp.py          # Application entry point & lifecycle
+│   ├── HellcatAsync.py        # Async utilities & event loop management
+│   ├── HellcatContext.py      # Per-request context object
+│   ├── HellcatMiddleware.py   # Middleware base & pipeline
+│   ├── HellcatRequest.py      # HTTP request parsing
+│   ├── HellcatResponse.py     # HTTP response builder
+│   ├── HellcatRouter.py       # Route registration & matching
+│   ├── HellcatServer.py       # TCP server & connection handler
+│   ├── HellcatTemplate.py     # HTML template rendering
+│   └── __init__.py            # Package exports
+├── static/                    # Static assets (CSS, JS, images)
+├── templates/                 # HTML template files
+├── TestApi.py                 # Example application & test routes
+├── .gitignore
+└── README.md
 ```
 
 ---
 
 ## Quick Start
 
-```python
-from cores.HellcatApp import HellcatApp
+### Prerequisites
 
-App = HellcatApp()
+- Python 3.10 or higher
+- No pip install required
 
-@App.Get("/")
-def Index(Req):
-    return App.Json({"message": "Hello, World!"})
+### Clone the Repository
 
-@App.Post("/echo")
-def Echo(Req):
-    Body = Req.GetJson()
-    if Body is None:
-        return App.Error("Invalid JSON", StatusCode=400)
-    return App.Json({"echo": Body})
-
-if __name__ == "__main__":
-    App.Run(Host="0.0.0.0", Port=9926)
+```bash
+git clone https://github.com/0xTM7/HellcatAPI.git
+cd HellcatAPI
 ```
+
+### Run the Example App
+
+```bash
+python TestApi.py
+```
+
+The server will start on `http://0.0.0.0:8000` by default.
 
 ---
 
-## Routing
+## Usage
 
-### HTTP Method Decorators
+### Minimal Application
 
 ```python
-@App.Get("/users")
-def GetUsers(Req): ...
+from cores import HellcatApp, HellcatRouter, HellcatRequest, HellcatResponse
 
-@App.Post("/users")
-def CreateUser(Req): ...
+Router = HellcatRouter()
 
-@App.Put("/users/<Id>")
-def UpdateUser(Req): ...
+@Router.Get("/")
+async def Index(Request: HellcatRequest, Response: HellcatResponse):
+    Response.Json({"Message": "Hello from HellcatAPI"})
 
-@App.Delete("/users/<Id>")
-def DeleteUser(Req): ...
-
-@App.Patch("/users/<Id>")
-def PatchUser(Req): ...
-
-@App.Any("/webhook")
-def AnyMethod(Req): ...
+App = HellcatApp(Router=Router)
+App.Run(Host="0.0.0.0", Port=8000)
 ```
 
-### Dynamic Path Parameters
+### Route Parameters
 
 ```python
-@App.Get("/user/<UserId>")
-def GetUser(Req):
-    UserId = Req.PathParams["UserId"]
-    return App.Json({"id": UserId})
-
-@App.Get("/post/<int:PostId>")
-def GetPost(Req):
-    PostId = int(Req.PathParams["PostId"])  # guaranteed to be digits
-    return App.Json({"post_id": PostId})
+@Router.Get("/Users/{UserId}")
+async def GetUser(Request: HellcatRequest, Response: HellcatResponse):
+    UserId = Request.Params.get("UserId")
+    Response.Json({"UserId": UserId})
 ```
 
-### Multi-Method Routes
+### Returning HTML Templates
 
 ```python
-@App.Route("/login", Methods=["GET", "POST"])
-def Login(Req):
-    if Req.Method == "GET":
-        return App.Render("login.html")
-    return App.Json({"token": "..."})
-```
-
----
-
-## Request Object
-
-Each handler receives a `HellcatRequest` instance with the following interface.
-
-| Attribute / Method | Description |
-|---|---|
-| `Req.Method` | HTTP method string (`GET`, `POST`, etc.) |
-| `Req.Path` | Decoded URL path |
-| `Req.PathParams` | Dict of dynamic path segments |
-| `Req.QueryParams` | Dict of query string parameters |
-| `Req.Headers` | Dict of lowercase header names to values |
-| `Req.Cookies` | Dict of cookie name/value pairs |
-| `Req.Body` | Raw request body as `bytes` |
-| `Req.Form` | URL-encoded or multipart form fields |
-| `Req.Files` | Uploaded files as `HellcatUploadedFile` objects |
-| `Req.RemoteIp` | Client IP address string |
-| `Req.ContentType` | Value of the Content-Type header |
-| `Req.UserAgent` | Value of the User-Agent header |
-| `Req.Host` | Value of the Host header |
-| `Req.Authorization` | Value of the Authorization header |
-| `Req.IsJson` | `True` if Content-Type is `application/json` |
-| `Req.IsForm` | `True` if Content-Type is `application/x-www-form-urlencoded` |
-| `Req.IsMultipart` | `True` if Content-Type is `multipart/form-data` |
-| `Req.GetHeader(Name)` | Case-insensitive header lookup |
-| `Req.GetQuery(Key, Default)` | Query param lookup with optional default |
-| `Req.GetForm(Key, Default)` | Form field lookup with optional default |
-| `Req.GetJson()` | Parses body as JSON, returns `None` on failure |
-| `Req.RequireJson()` | Like `GetJson()` but raises on parse failure |
-| `Req.GetFile(FieldName)` | Returns uploaded file or `None` |
-| `Req.RequireFile(FieldName)` | Returns uploaded file or raises |
-
-### File Uploads
-
-```python
-@App.Post("/upload")
-def Upload(Req):
-    File = Req.RequireFile("avatar")
-    File.Save(f"/uploads/{File.Filename}")
-    return App.Json({"saved": File.Filename, "size": File.Size})
-```
-
----
-
-## Response Types
-
-All response helpers return an object that HellcatAPI serialises and sends automatically.
-
-```python
-App.Json({"key": "value"}, StatusCode=200)
-App.Html("<h1>Hello</h1>", StatusCode=200)
-App.Text("plain text")
-App.Redirect("/new-path", StatusCode=302)
-App.File("/path/to/file.pdf", DownloadAs="report.pdf")
-App.Error("Not authorised", StatusCode=401)
-App.Error("Validation failed", StatusCode=400, Details={"Required": ["Name"]})
-App.Stream(GeneratorFunc, ContentType="text/event-stream")
-App.Render("template.html", {"key": "value"})
-```
-
-### Setting Headers and Cookies
-
-```python
-@App.Get("/set-cookie")
-def SetCookie(Req):
-    Resp = App.Json({"ok": True})
-    Resp.SetHeader("X-Custom-Header", "value")
-    Resp.SetCookie("session", "abc123", MaxAge=3600, HttpOnly=True)
-    return Resp
-```
-
-### Tuple Shorthand
-
-Handlers may return a `(body, status)` or `(body, status, headers)` tuple:
-
-```python
-@App.Get("/created")
-def Created(Req):
-    return {"id": 1}, 201
-```
-
----
-
-## Middleware
-
-### Global Middleware
-
-```python
-App.UseCors(AllowedOrigins=["https://example.com"], AllowCredentials=True)
-App.UseRateLimit(MaxRequests=100, WindowSeconds=60)
-App.UseSecurityHeaders()
-App.UseGzip(MinSizeBytes=1024)
-App.UseBodySizeLimit(MaxBytes=5 * 1024 * 1024)
-```
-
-### Per-Route Middleware
-
-```python
-from cores.HellcatMiddleware import HellcatBearerAuthMiddleware
-
-AuthMw = HellcatBearerAuthMiddleware(ValidTokens=["my-secret-token"])
-
-@App.Get("/admin", Middlewares=[AuthMw])
-def AdminPanel(Req):
-    return App.Json({"panel": "admin"})
+@Router.Get("/Home")
+async def Home(Request: HellcatRequest, Response: HellcatResponse):
+    Response.Template("index.html", Context={"Title": "HellcatAPI"})
 ```
 
 ### Custom Middleware
 
 ```python
-def LoggingMiddleware(Request, Next):
-    print(f"Incoming: {Request.Method} {Request.Path}")
-    Response = Next(Request)
-    print(f"Outgoing: {Response.StatusCode}")
-    return Response
+from cores import HellcatMiddleware, HellcatContext
 
-App.UseMiddleware(LoggingMiddleware)
-```
+class LoggerMiddleware(HellcatMiddleware):
+    async def Call(self, Context: HellcatContext, Next):
+        print(f"[HellcatAPI] {Context.Request.Method} {Context.Request.Path}")
+        await Next(Context)
 
-Async middleware is also supported:
-
-```python
-async def AsyncLoggingMiddleware(Request, Next):
-    Response = await Next(Request)
-    return Response
-```
-
-### Built-in Middleware
-
-| Class | Purpose |
-|---|---|
-| `HellcatCorsMiddleware` | CORS headers and preflight handling |
-| `HellcatRateLimitMiddleware` | Per-IP sliding window rate limiting |
-| `HellcatBasicAuthMiddleware` | HTTP Basic Authentication |
-| `HellcatBearerAuthMiddleware` | Bearer token authentication (static list or custom validator) |
-| `HellcatBodySizeLimitMiddleware` | Reject oversized request bodies (413) |
-| `HellcatGzipMiddleware` | Gzip compression for responses above a size threshold |
-| `HellcatSecurityHeadersMiddleware` | X-Content-Type-Options, X-Frame-Options, CSP, and related headers |
-| `HellcatCsrfMiddleware` | HMAC-based CSRF cookie/header validation |
-| `HellcatJsonValidatorMiddleware` | Enforce required fields and type schema on JSON bodies |
-
----
-
-## Template Engine
-
-HellcatAPI includes a Jinja2-inspired template engine backed entirely by the standard library.
-
-### Setup
-
-```python
-App = HellcatApp(TemplateDir="templates")
-```
-
-Template files are resolved relative to the script that instantiates `HellcatApp`, not the current working directory.
-
-### Rendering
-
-```python
-@App.Get("/")
-def Home(Req):
-    return App.Render("index.html", {"Title": "Home", "Items": [1, 2, 3]})
-```
-
-### Template Syntax
-
-```html
-<!-- Variable interpolation (HTML-escaped by default) -->
-<h1>{{ Title }}</h1>
-
-<!-- Raw output, no escaping -->
-<div>{{ HtmlContent | raw }}</div>
-
-<!-- Conditionals -->
-{% if User %}
-  <p>Welcome, {{ User.Name }}</p>
-{% elif Guest %}
-  <p>Hello, guest.</p>
-{% else %}
-  <p>Please log in.</p>
-{% endif %}
-
-<!-- Loops -->
-{% for Item in Items %}
-  <li>{{ Item }}</li>
-{% endfor %}
-
-<!-- Include partials -->
-{% include "partials/nav.html" %}
-
-<!-- Template inheritance -->
-{% extends "base.html" %}
-{% block Content %}
-  <p>Child content here.</p>
-{% endblock %}
-
-<!-- Comments (stripped from output) -->
-{# This will not appear in the rendered HTML #}
-```
-
-### Rendering a String Directly
-
-```python
-Html = App.RenderString("<p>Hello {{ Name }}</p>", {"Name": "World"})
+App = HellcatApp(Router=Router, Middleware=[LoggerMiddleware()])
 ```
 
 ---
 
-## Database
+## Core Modules
 
-HellcatAPI includes `HellcatDB`, a connection-pooled database layer that supports SQLite, PostgreSQL, MySQL, and MongoDB. The driver is detected automatically from the connection string.
+### `HellcatApp`
+The top-level application object. Wires together the router, middleware stack, and server. Call `.Run()` to start listening.
 
-### Connecting
+### `HellcatServer`
+Low-level TCP server based on `asyncio`. Handles incoming connections and dispatches them through the framework pipeline.
 
-```python
-from cores.HellcatDB import HellcatDB
+### `HellcatRouter`
+Registers route handlers for HTTP methods (`Get`, `Post`, `Put`, `Delete`, `Patch`). Supports dynamic path segments using `{Param}` syntax.
 
-# SQLite
-DB = HellcatDB(DB="app.db", PoolSize=10)
+### `HellcatMiddleware`
+Base class for middleware. Override the `Call(Context, Next)` method. Middleware is executed in registration order and must explicitly call `await Next(Context)` to continue the chain.
 
-# PostgreSQL
-DB = HellcatDB(DB="postgres://user:pass@localhost/mydb")
+### `HellcatRequest`
+Parses raw HTTP request data into a structured object. Exposes `Method`, `Path`, `Headers`, `Params`, `Query`, and `Body`.
 
-# MySQL
-DB = HellcatDB(DB="mysql://user:pass@localhost/mydb")
-```
+### `HellcatResponse`
+Builder for HTTP responses. Provides `.Json()`, `.Html()`, `.Template()`, `.Status()`, and `.Header()` methods.
 
-### Auto-Migration
+### `HellcatContext`
+A per-request container that holds both the `Request` and `Response` objects, passed through the entire middleware and handler chain.
 
-Pass a dictionary of ordered migration scripts. Each key is a migration name; scripts that have already run are skipped automatically.
+### `HellcatTemplate`
+Renders HTML templates from the `templates/` directory, supporting simple variable substitution via context dictionaries.
 
-```python
-DB = HellcatDB(
-    DB="app.db",
-    AutoMigrate={
-        "001_create_users": """
-            CREATE TABLE users (
-                id      INTEGER PRIMARY KEY AUTOINCREMENT,
-                name    TEXT NOT NULL,
-                email   TEXT NOT NULL UNIQUE,
-                created TEXT NOT NULL
-            )
-        """,
-    },
-)
-```
-
-### Query Builder
-
-```python
-# Fetch all rows
-Users = DB.Table("users").All()
-
-# Filter, order, and paginate
-Result = DB.Table("users").WhereEq("role", "admin").OrderBy("id").Paginate(Page=1, PerPage=20)
-
-# First matching row
-User = DB.Table("users").WhereEq("email", "tom@example.com").First()
-
-# Custom condition
-Products = DB.Table("products").Where("price >= ?", 50.0).All()
-
-# Pattern match
-Matches = DB.Table("users").WhereLike("name", "%tom%").All()
-
-# Count
-Total = DB.Table("users").Count()
-
-# Update
-DB.Table("users").WhereEq("id", 1).Update({"name": "New Name"})
-
-# Delete
-DB.Table("users").WhereEq("id", 1).Delete()
-```
-
-### Inserting Rows
-
-```python
-NewId = DB.InsertRow("users", {
-    "name": "Alice",
-    "email": "alice@example.com",
-    "created": "2026-01-01T00:00:00",
-})
-```
-
-### Transactions
-
-```python
-with DB.Transaction() as Tx:
-    Tx.Execute("UPDATE products SET stock = stock - ? WHERE id = ?", [1, ProductId])
-    OrderId = Tx.Insert(
-        "INSERT INTO orders (user_id, product_id, total, created) VALUES (?, ?, ?, ?)",
-        [UserId, ProductId, 49.99, "2026-01-01T00:00:00"],
-    )
-```
-
-### Introspection
-
-```python
-DB.Tables()                  # list all table names
-DB.Schema("users")           # column definitions for a table
-DB.TableExists("users")      # bool
-DB.Stats()                   # pool stats
-DB.MigrationStatus()         # which migrations have run
-```
-
-### Error Types
-
-| Exception | Raised When |
-|---|---|
-| `HellcatDBConnectionError` | Cannot connect to the database |
-| `HellcatDBQueryError` | SQL execution fails |
-| `HellcatDBNotFoundError` | A required record does not exist |
-| `HellcatDBPoolExhaustedError` | All pool connections are in use |
-| `HellcatDBMigrationError` | A migration script fails |
-| `HellcatDBDriverError` | The driver cannot be detected from the connection string |
+### `HellcatAsync`
+Async utilities for managing the event loop safely, including helpers to resolve conflicts in threaded environments.
 
 ---
 
-## Session Management
+## Style Conventions
 
-HellcatAPI provides an in-memory session store with automatic TTL expiry.
+HellcatAPI enforces a consistent internal coding style across the entire codebase:
 
-```python
-@App.Post("/login")
-def Login(Req):
-    Data, SessionId = App.GetSession(Req)
-    Data["user_id"] = 42
-    Resp = App.Json({"ok": True})
-    App.SaveSession(Resp, Data, SessionId)
-    return Resp
-
-@App.Get("/profile")
-def Profile(Req):
-    Data, _ = App.GetSession(Req)
-    UserId = Data.get("user_id")
-    if not UserId:
-        return App.Error("Not authenticated", StatusCode=401)
-    return App.Json({"user_id": UserId})
-
-@App.Post("/logout")
-def Logout(Req):
-    _, SessionId = App.GetSession(Req)
-    if SessionId:
-        App.Sessions.Delete(SessionId)
-    return App.Json({"message": "Logged out"})
-```
-
-Session data is stored in memory. For deployments with multiple workers or server restarts, replace with a persistent store such as Redis. The default TTL is 3600 seconds and is configurable on `HellcatSessionStore` directly.
+- All identifiers, class names, method names, and string keys use **PascalCase**
+- No underscore-prefixed names (no `_private` style)
+- No inline `#` comments — documentation via `""""""` docstrings only
+- Strict separation of concerns across module files
 
 ---
 
-## JWT Utilities
+## Roadmap
 
-```python
-# Create a signed token
-Token = App.CreateJwt({"user_id": 1, "role": "admin"}, ExpiresIn=3600)
-
-# Decode and verify
-Payload = App.DecodeJwt(Token)
-if Payload is None:
-    return App.Error("Invalid or expired token", StatusCode=401)
-```
-
-Tokens are signed with HMAC-SHA256 using the `SecretKey` passed to `HellcatApp`. Change the default secret key before deploying to production:
-
-```python
-App = HellcatApp(SecretKey="your-strong-production-secret")
-```
+- [x] Async request/response pipeline
+- [x] Middleware stack
+- [x] Dynamic routing with path parameters
+- [x] Template rendering
+- [x] Static file serving
+- [x] CORS middleware
+- [ ] Form data parsing
+- [ ] File upload support
+- [ ] WebSocket support
+- [ ] CLI runner (`hellcat run`)
+- [ ] Auto-reload on file change
+- [ ] Request validation layer
+- [ ] OpenAPI / Swagger documentation generation
 
 ---
 
-## Async Support
+## Running on Termux (Android)
 
-Async route handlers work transparently alongside synchronous ones.
+HellcatAPI is built to run smoothly inside Termux without any native extensions.
 
-```python
-import asyncio
-
-@App.Get("/async-ping")
-async def AsyncPing(Req):
-    await asyncio.sleep(0)
-    return App.Json({"pong": True})
+```bash
+pkg update && pkg upgrade
+pkg install python git
+git clone https://github.com/0xTM7/HellcatAPI.git
+cd HellcatAPI
+python TestApi.py
 ```
 
-### Concurrent Sub-tasks Within a Handler
-
-```python
-@App.Get("/dashboard")
-async def Dashboard(Req):
-    async def FetchUser():
-        await asyncio.sleep(0.01)
-        return {"id": 1, "name": "Alice"}
-
-    async def FetchStats():
-        await asyncio.sleep(0.01)
-        return {"requests": 500}
-
-    User, Stats = await App.Gather(FetchUser(), FetchStats())
-    return App.Json({"user": User, "stats": Stats})
-```
-
-### Timeout
-
-```python
-@App.Get("/slow")
-async def Slow(Req):
-    Result = await App.Timeout(SomeSlowCoroutine(), Seconds=5)
-    return App.Json(Result)
-```
-
-To run the entire server in async mode:
-
-```python
-App.Run(Asynchronous=True)
-```
+Access from your local network at `http://<your-device-ip>:8000`.
 
 ---
 
-## Static File Serving
+## Contributing
 
-```python
-App = HellcatApp(StaticDir="static", StaticUrl="/static")
-```
+Contributions are welcome. To get started:
 
-Files in the `static/` directory are served at the `/static/` URL prefix. Directory traversal is blocked. Requests to a directory path automatically serve `index.html` if present.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b Feature/YourFeature`
+3. Follow the project's PascalCase style conventions
+4. Commit your changes: `git commit -m "Add YourFeature"`
+5. Push and open a Pull Request
 
-The `StaticDir` path is resolved relative to the calling script. The directory can also be swapped at runtime:
-
-```python
-App.SetStaticDir("static_v2", NewUrl="/static")
-```
-
----
-
-## HTTPS and SSL
-
-```python
-App.Run(
-    Host="0.0.0.0",
-    Port=443,
-    SslCertFile="certs/cert.pem",
-    SslKeyFile="certs/key.pem",
-    HttpRedirectPort=80,  # optional: redirect HTTP traffic to HTTPS automatically
-)
-```
-
-TLS 1.2 is the minimum version enforced. HTTP clients connecting to the HTTPS port receive a `426 Upgrade Required` response.
-
----
-
-## Sub-Routers
-
-Sub-routers allow modular route organisation with optional path prefixes.
-
-```python
-from cores.HellcatRouter import HellcatRouter
-
-ApiRouter = HellcatRouter(Prefix="/api/v1")
-
-@ApiRouter.Get("/users")
-def GetUsers(Req):
-    return App.Json({"users": []})
-
-@ApiRouter.Post("/users")
-def CreateUser(Req):
-    return App.Json({"created": True}, StatusCode=201)
-
-App.Include(ApiRouter)
-```
-
-Sub-routers can carry their own middleware and error handlers, which are merged into the main application on `Include()`.
-
----
-
-## Custom Error Handlers
-
-```python
-@App.ErrorHandler(404)
-def NotFound(Req, Error=None):
-    return App.Json({"error": "page not found"}, StatusCode=404)
-
-@App.ErrorHandler(405)
-def MethodNotAllowed(Req, Error=None):
-    return App.Json({"error": "method not allowed"}, StatusCode=405)
-
-@App.ErrorHandler(500)
-def InternalError(Req, Error=None):
-    return App.Json({"error": "something went wrong"}, StatusCode=500)
-```
-
----
-
-## Request Context
-
-`RequestContext` is a thread-local store for passing data within a single request lifecycle, similar to `flask.g`.
-
-```python
-from cores.HellcatContext import RequestContext
-
-def AuthMiddleware(Request, Next):
-    Token = Request.GetHeader("Authorization", "")
-    if Token:
-        RequestContext.Set("user_id", 42)
-    return Next(Request)
-
-@App.Get("/me")
-def Me(Req):
-    UserId = RequestContext.Get("user_id")
-    return App.Json({"user_id": UserId})
-```
-
-The context is cleared automatically at the start of each new request.
-
----
-
-## Server Configuration
-
-### `HellcatApp()` Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `TemplateDir` | `str` | `"templates"` | Template directory name or path |
-| `StaticDir` | `str` | `None` | Static file directory (disabled if `None`) |
-| `StaticUrl` | `str` | `"/static"` | URL prefix for static files |
-| `SecretKey` | `str` | built-in default | Secret for JWT signing and CSRF tokens |
-| `Debug` | `bool` | `False` | Debug mode |
-| `AutoCreateDirs` | `bool` | `False` | Create `TemplateDir` and `StaticDir` automatically if absent |
-
-### `App.Run()` Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `Host` | `str` | `"0.0.0.0"` | Bind address |
-| `Port` | `int` | `9926` | TCP port |
-| `Workers` | `int` | `cpu_count x 4` | Thread pool size |
-| `SslCertFile` | `str` | `None` | Path to PEM certificate |
-| `SslKeyFile` | `str` | `None` | Path to PEM private key |
-| `HttpRedirectPort` | `int` | `None` | HTTP port to redirect from when HTTPS is active |
-| `Blocking` | `bool` | `True` | Block the main thread while the server is running |
-| `Debug` | `bool` | `False` | Include error details in 500 responses |
-| `Asynchronous` | `bool` | `False` | Force all handlers through the async event loop |
-| `Logger` | `bool` | `True` | Enable request log and per-second stats ticker output |
-
-### Runtime Inspection
-
-```python
-App.ListRoutes()   # list of all registered HellcatRoute objects
-App.GetPaths()     # dict of resolved TemplateDir, StaticDir, CallerDir
-App.GetStats()     # dict of uptime, request count, worker count, and more
-```
+Please open an issue first for major changes so we can discuss direction before you write code.
 
 ---
 
 ## License
 
-HellcatAPI is developed by 0xTM7. Refer to the project repository for license terms.
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+Built with obsession and zero dependencies by [0xTM7](https://github.com/0xTM7)
+
+*HellcatAPI — raw power, no bloat.*
+
+</div>
