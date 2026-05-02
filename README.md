@@ -753,3 +753,5 @@ Released under the MIT License — see [LICENSE](LICENSE) for details.
 **HellcatAPI — raw power, no bloat.**
 
 </div>
+
+<p align="center">&copy; 2026 XTM26</p>
