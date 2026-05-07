@@ -81,7 +81,7 @@ No `pip install` step is required.
 HellcatAPI/
 ├── cores/
 │   ├── App/
-│   │   └── HellcatApp.py          # Main application class & lifecycle
+│   │   └── HellcatApp.py          # Main application class & lifecycles
 │   ├── Async/
 │   │   └── HellcatAsync.py        # Async handler detection, event loop management
 │   ├── Context/
